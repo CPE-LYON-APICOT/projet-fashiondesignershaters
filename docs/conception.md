@@ -63,11 +63,12 @@ skinparam linetype ortho
 skinparam packageStyle rectangle
 allowmixing
 
+' --- PACKAGE ENGINE ---
 package engine {
     class GameEngine {
         - gameService : GameService
-        - animationTimer : AnimationTimer
-        + start() : void
+        - gameLoop : AnimationTimer
+        + start(gamePane : Pane) : void
         + render(gc : GraphicsContext) : void
     }
 
@@ -79,101 +80,111 @@ package engine {
     }
 }
 
-package model {
-    interface ITower {
-        + update() : void
-        + draw(gc : GraphicsContext) : void
-    }
-
-    class SimpleTower implements ITower {
-        - x, y : double
-        - cooldown : int
-    }
-
-    abstract class TowerDecorator implements ITower {
-        # innerTower : ITower
-        + TowerDecorator(tower : ITower)
-    }
-
-    class IceDecorator extends TowerDecorator {
-        + applySlowEffect() : void
-    }
-
-    class Enemy {
-        - hp : int
-        - speed : double
-        + move() : void
-    }
-}
-
+' --- PACKAGE SERVICE ---
 package service {
     class GameService {
-        - currencyService : CurrencyService
-        - waveManager : WaveManager
         - towerService : TowerService
+        - waveManager : WaveManager
+        - currencyService : CurrencyService
         + update() : void
+    }
+
+    class TowerService {
+        - towers : List<Tower>
+        - factory : TowerFactory
+        + addTower(type : TowerType, x, y) : void
+        + upgradeTower(tower : Tower, decoratorType : String) : void
     }
 
     class CurrencyService <<Observable>> {
         - gold : int
-        - observers : List<CurrencyObserver>
         + addGold(amount : int) : void
         + spendGold(amount : int) : boolean
-        + notifyObservers() : void
-    }
-
-    class TowerService {
-        - towers : List<ITower>
-        - factory : TowerFactory
-        + buyTower(type : TowerType, x : double, y : double) : void
-        + upgradeTower(tower : ITower) : void
     }
 
     class WaveManager {
         - enemies : List<Enemy>
-        + spawnWave() : void
-    }
-
-    class GameConfig <<Singleton>> {
-        - {static} instance : GameConfig
-        + TOWER_COST : int
-        + CLICK_REWARD : int
+        - waveFactory : WaveFactory
+        + updateWaves() : void
     }
 }
 
+' --- PACKAGE MODEL ---
+package model {
+    
+    ' Système de Tours
+    abstract class Tower {
+        - strategy : IAttackStrategy
+        - range : int
+        - power : int
+        + position : Coord
+        + update() : void
+        + draw(gc : GraphicsContext) : void
+    }
+
+    class SimpleTower extends Tower {
+        ' Tour de base créée par la factory
+    }
+
+    ' Pattern Decorator
+    abstract class TowerDecorator extends Tower {
+        # innerTower : Tower
+        + TowerDecorator(tower : Tower)
+    }
+
+    class IceDecorator extends TowerDecorator {
+        + getPower() : int // power * 2
+    }
+
+    class RangeDecorator extends TowerDecorator {
+        + getRange() : int // range * 2
+    }
+
+    ' Pattern Strategy
+    interface IAttackStrategy {
+        + attack(enemies : List<Enemy>, power : int) : void
+    }
+
+    class SlowingAttackStrategy implements IAttackStrategy
+    class ZoneAttackStrategy implements IAttackStrategy
+    class HeavyAttackStrategy implements IAttackStrategy
+
+    ' Système d'Ennemis
+    abstract class Enemy {
+        - pv, speed, position, damage : int
+        + move() : void
+    }
+
+    class Boss extends Enemy
+    class Mob extends Enemy
+}
+
+' --- PACKAGE FACTORY ---
 package factory {
     class TowerFactory {
-        + createBaseTower(x, y) : ITower
+        + createTower(type : TowerType) : Tower
+    }
+
+    class WaveFactory {
+        + createWave(level : int) : List<Enemy>
     }
 }
 
-package ui {
-    interface CurrencyObserver {
-        + onGoldChanged(newAmount : int) : void
-    }
+' --- RELATIONS ---
+GameEngine --> GameService : "appelle update()"
+GameService --> TowerService : "gère"
+GameService --> WaveManager : "gère"
+GameService --> CurrencyService : "gère l'économie"
 
-    class HUD implements CurrencyObserver {
-        + drawHUD(gc : GraphicsContext) : void
-    }
-}
+TowerService --> TowerFactory : "utilise"
+TowerService o-- Tower : "possède n"
+Tower o-- IAttackStrategy : "utilise"
 
-' Relations
-GameEngine --> GameService : "update() & render()"
-GameService --> CurrencyService : "gère l'argent"
-GameService --> WaveManager : "gère les ennemis"
-GameService --> TowerService : "gère les tours"
+WaveManager --> WaveFactory : "utilise"
+WaveManager o-- Enemy : "possède n"
 
-TowerService --> TowerFactory : "demande création"
-TowerService o-- ITower : "liste des tours"
-WaveManager o-- Enemy : "liste des ennemis"
-
-CurrencyService ..> CurrencyObserver : "notifie"
-HUD ..> CurrencyService : "écoute"
-
-' Accès au Singleton
-GameService ..> GameConfig : "lit les prix"
-InputService <.. GameService : "détecte clics"
-
+' Accès Singleton / Input
+GameService ..> InputService : "lit les clics"
 @enduml
 ```
 
