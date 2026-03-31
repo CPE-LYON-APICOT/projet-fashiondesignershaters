@@ -59,76 +59,129 @@ Ce diagramme montre comment le pattern **Factory** crée les tours et comment le
 
 ```plantuml
 @startuml
-abstract class Tower {
-    + update()
-    + draw(gc : GraphicsContext)
-    - IDamageStrategy strategy
-    - int range
-    + final coord position
-    - int power
+skinparam linetype ortho
+skinparam packageStyle rectangle
+allowmixing
+
+package engine {
+    class GameEngine {
+        - gameService : GameService
+        - animationTimer : AnimationTimer
+        + start() : void
+        + render(gc : GraphicsContext) : void
+    }
+
+    class InputService <<Singleton>> {
+        - {static} instance : InputService
+        + isMouseClicked() : boolean
+        + getMouseX() : double
+        + getMouseY() : double
+    }
 }
 
-interface IAttackStrategy{
-    + void attack(List<Enemy>, int power)
+package model {
+    interface ITower {
+        + update() : void
+        + draw(gc : GraphicsContext) : void
+    }
+
+    class SimpleTower implements ITower {
+        - x, y : double
+        - cooldown : int
+    }
+
+    abstract class TowerDecorator implements ITower {
+        # innerTower : ITower
+        + TowerDecorator(tower : ITower)
+    }
+
+    class IceDecorator extends TowerDecorator {
+        + applySlowEffect() : void
+    }
+
+    class Enemy {
+        - hp : int
+        - speed : double
+        + move() : void
+    }
 }
 
-class SlowingAttackStrategy implements IAttackStrategy{
-    // Ralenti les ennemis dans la zone
+package service {
+    class GameService {
+        - currencyService : CurrencyService
+        - waveManager : WaveManager
+        - towerService : TowerService
+        + update() : void
+    }
+
+    class CurrencyService <<Observable>> {
+        - gold : int
+        - observers : List<CurrencyObserver>
+        + addGold(amount : int) : void
+        + spendGold(amount : int) : boolean
+        + notifyObservers() : void
+    }
+
+    class TowerService {
+        - towers : List<ITower>
+        - factory : TowerFactory
+        + buyTower(type : TowerType, x : double, y : double) : void
+        + upgradeTower(tower : ITower) : void
+    }
+
+    class WaveManager {
+        - enemies : List<Enemy>
+        + spawnWave() : void
+    }
+
+    class GameConfig <<Singleton>> {
+        - {static} instance : GameConfig
+        + TOWER_COST : int
+        + CLICK_REWARD : int
+    }
 }
 
-class ZoneAttackStrategy implements IAttackStrategy{
-    // Inflige des dégats aux ennemis dans la zone
+package factory {
+    class TowerFactory {
+        + createBaseTower(x, y) : ITower
+    }
 }
 
-class SlowingAttackStrategy implements IAttackStrategy{
-    // Inflige de lourds dégats à un seul ennemi de la liste
+package ui {
+    interface CurrencyObserver {
+        + onGoldChanged(newAmount : int) : void
+    }
+
+    class HUD implements CurrencyObserver {
+        + drawHUD(gc : GraphicsContext) : void
+    }
 }
 
-abstract class TowerDecorator extends Tower {
-    # innerTower : ITower
-    + TowerDecorator(tower : ITower)
-}
+' Relations
+GameEngine --> GameService : "update() & render()"
+GameService --> CurrencyService : "gère l'argent"
+GameService --> WaveManager : "gère les ennemis"
+GameService --> TowerService : "gère les tours"
 
-class IceDecorator extends TowerDecorator {
-    + update() // Ajoute la logique de ralentissement
-    + draw(gc : GraphicsContext) // Ajoute un effet visuel bleu
-    + getPower() // On prend le power et on le multiplie par 2
-    
+TowerService --> TowerFactory : "demande création"
+TowerService o-- ITower : "liste des tours"
+WaveManager o-- Enemy : "liste des ennemis"
 
-}
+CurrencyService ..> CurrencyObserver : "notifie"
+HUD ..> CurrencyService : "écoute"
 
-class RangeDecorator extends TowerDecorator {
-    + update() // Augmente le rayon de détection
-    + getRange() //On prend le range de base et on le multiplie par 2
-}
+' Accès au Singleton
+GameService ..> GameConfig : "lit les prix"
+InputService <.. GameService : "détecte clics"
 
-class TowerFactory {
-    + createTower(type : TowerType)
-}
-
-abstract class Enemy{
-    - int pv
-    - int speed
-    - int position
-    - int damage
-}
-
-class Boss extends Enemy{
-}
-
-class Mob extends Enemy{
-}
-
-class WaveFactory{
-    + List<Enemy> createWave(int level())
-    
-}
-
-TowerFactory ..> SimpleTower : crée >
 @enduml
+```
 
 Diagramme 2 — Séquence d'un "Click" (Système Clicker)
 Ce diagramme illustre le flux partant du clic de l'utilisateur jusqu'à la mise à jour de l'affichage via le pattern Observer.
+
+```plantuml
+@startuml
 
 actor Utilisateur
 participant "InputService" as Input
@@ -148,4 +201,6 @@ HUD -> HUD : prepareText(newBalance)
 == Frame de rendu ==
 Canvas -> HUD : render(graphicsContext)
 HUD -> Canvas : drawText("Gold: 150", x, y)
+
 @enduml
+```
