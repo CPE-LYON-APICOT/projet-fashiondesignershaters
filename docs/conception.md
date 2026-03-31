@@ -1,53 +1,60 @@
 # Conception technique — NKOK Defense
 
-> Ce document décrit l'architecture technique de NKOK Defense. En tant qu'architectes, nous avons privilégié la modularité pour permettre l'ajout futur de tours et d'ennemis sans modifier le cœur du moteur.
-
-## Vue d'ensemble
-
-L'application repose sur une architecture en couches, exploitant le **Canvas JavaFX** pour un rendu haute performance :
-
-1. **Engine (Socle)** — Gère la boucle de jeu (`GameEngine`) et le rendu graphique via le `GraphicsContext`. Contrairement à une approche par nœuds (Nodes), nous dessinons manuellement chaque entité à chaque frame pour plus de fluidité.
-2. **Service / Manager** — Orchestre de la logique métier. `CurrencyService` gère l'économie (clics), `WaveManager` gère l'apparition des ennemis, et `TowerService` gère le placement et l'attaque des tours.
-3. **Model** — Entités pures : `Tower`, `Enemy`, `Projectile`. Ces classes contiennent les données et les méthodes de mise à jour de leur état.
-
-L'architecture suit un flux de données unidirectionnel :
-`Input (Clic/Clavier) → Services (Logique) → Modèles (Données) → Canvas (Rendu)`.
+> Ce document détaille l'architecture logicielle du projet NKOK Defense. Nous avons opté pour une structure modulaire permettant de séparer strictement la logique économique (Clicker) de la logique de combat (Tower Defense).
 
 ---
 
-## Design Patterns
+## 1. Vue d'ensemble
+
+L'application repose sur une architecture en couches exploitant le **Canvas JavaFX** pour garantir des performances optimales et une grande souplesse graphique :
+
+1. **Engine (Socle)** : Gère la boucle de jeu via un `AnimationTimer` et la capture des entrées utilisateur via un `InputService`. Le rendu est effectué manuellement à chaque frame via le `GraphicsContext`.
+2. **Service (Logique métier)** : Orchestre le fonctionnement global. Le `GameService` coordonne les trois piliers du jeu : le `CurrencyService` (gestion de l'or), le `TowerService` (gestion des tours) et le `WaveManager` (gestion des vagues).
+3. **Model (Données)** : Contient les entités pures comme `Tower` et `Enemy`, ainsi que les définitions de comportements via les interfaces de patterns.
+4. **Factory (Création)** : Centralise l'instanciation des objets complexes pour éviter de disperser les paramètres de configuration dans la logique métier.
+
+---
+
+## 2. Design Patterns (DP)
 
 ### DP 1 — Singleton
-
-**Feature associée** : Gestionnaire de configuration (`GameConfig`)
-
-**Justification** : Le jeu possède de nombreuses constantes (prix d'achat initial, dégâts par défaut, récompense par clic, vitesse des vagues). Ces données doivent être partagées par le `Shop`, le `WaveManager` et les `Tours`. Le Singleton garantit que tous les composants lisent la même "source de vérité". Cela facilite l'équilibrage du jeu : modifier une valeur dans le Singleton impacte instantanément tout le logiciel.
-
-**Intégration** : Une classe `GameConfig` avec une instance unique. Elle est accessible par tous les services pour calculer les coûts et les ratios de puissance.
+**Feature associée** : Gestion des entrées (`InputService`) et Configuration globale (`GameConfig`).
+**Justification** : Le système doit garantir qu'une seule instance gère les interactions souris pour éviter les conflits de coordonnées et les fuites de mémoire. De même, `GameConfig` centralise les prix, les dégâts et les statistiques pour permettre un équilibrage du jeu en un seul point accessible par tous les services.
+**Intégration** : L'accès à ces services se fait via une méthode statique `getInstance()`.
 
 ### DP 2 — Observer
-
-**Feature associée** : Mise à jour de l'interface utilisateur (HUD) et du Score
-
-**Justification** : Le système de "Clicker" génère de l'argent très rapidement. Coupler le `CurrencyService` directement à l'affichage (le texte sur le Canvas) rendrait le code illisible. L'Observer permet au `CurrencyService` de notifier tous les abonnés (HUD, Boutique, Succès) dès que le solde change. L'affichage se met à jour uniquement quand la donnée change, sans que le service économique n'ait connaissance de l'existence de l'interface.
-
-**Intégration** : `CurrencyService` implémente une interface `Observable`. Le `HUDManager` s'enregistre comme `Observer` et rafraîchit les visuels à chaque notification de gain ou de dépense.
+**Feature associée** : Mise à jour de l'interface utilisateur (HUD) et Score.
+**Justification** : Le `CurrencyService` est le moteur économique du jeu ; il ne doit pas être "pollué" par des références à des éléments graphiques. En utilisant l'Observer, le service notifie simplement ses abonnés (comme le `HUD`) dès que le solde change, permettant une mise à jour visuelle instantanée et découplée.
 
 ### DP 3 — Factory
-
-**Feature associée** : Génération des tours et des types d'ennemis
-
-**Justification** : Dans un Tower Defense, on manipule de nombreuses variantes d'objets (Tour d'Archer, Tour de Glace, Ennemi Rapide, Ennemi Tank). Utiliser des `new` partout créerait un couplage fort. La `TowerFactory` centralise la création. Si on décide que toutes les tours doivent désormais avoir un identifiant unique ou un effet sonore à la construction, on ne modifie que la Factory.
-
-**Intégration** : `TowerFactory` possède une méthode `createTower(TowerType type, double x, double y)`. Elle retourne une instance de `Tower` configurée avec les bonnes statistiques de base issues du `GameConfig`.
+**Feature associée** : Génération des vagues d'ennemis et construction de tours.
+**Justification** : Créer un ennemi de type "Boss" ou une tour de type "Glace" nécessite des réglages spécifiques (PV, vitesse, sprites). La `TowerFactory` et la `WaveFactory` isolent cette complexité, permettant au `WaveManager` de générer une vague complète via une seule commande simple.
+**Intégration** : Les méthodes de création retournent des types abstraits (`Tower` ou `Enemy`), masquant les classes concrètes au reste du système.
 
 ### DP 4 — Decorator
+**Feature associée** : Système d'améliorations de spécialisation (Upgrades).
+**Justification** : C'est le cœur de notre système d'évolution. Plutôt que de créer des classes rigides pour chaque amélioration, nous "enveloppons" une tour de base avec des décorateurs comme `IceDecorator` (ralentissement) ou `RangeDecorator` (portée). Cela permet au joueur de cumuler plusieurs bonus sur une même tour de manière dynamique.
+**Intégration** : `TowerDecorator` hérite de la classe abstraite `Tower` et contient une référence vers la tour qu'il décore, modifiant ses statistiques au vol.
 
-**Feature associée** : Système d'améliorations de spécialisation (Upgrades)
+### DP 5 — Strategy
+**Feature associée** : Modes d'attaque interchangeables et calculs de gains.
+**Justification** : Une tour peut posséder différentes manières de tirer (dégâts de zone, ralentissement, ou tir lourd sur cible unique). Le pattern Strategy permet de changer l'algorithme d'attaque d'une tour sans modifier sa classe. Nous appliquons également ce pattern au système de "clic" pour varier les gains d'or selon les bonus actifs.
+**Intégration** : Les tours possèdent une référence vers une interface `IAttackStrategy` interchangeable à l'exécution.
 
-**Justification** : C'est le cœur de notre fonctionnalité de spécialisation. Au lieu de créer des classes complexes comme `IceTowerWithBigSlowAndAreaEffect`, nous utilisons le Decorator. Une `Tower` de base peut être "enveloppée" par un `RangeDecorator` (augmente la portée), un `AreaEffectDecorator` (ajoute des dégâts de zone) ou un `SlowDecorator` (renforce le ralentissement). Cela permet de cumuler des bonus de manière dynamique et infinie à l'exécution.
+---
 
-**Intégration** : Une classe abstraite `TowerDecorator` qui implémente l'interface `ITower`. Chaque décoration spécifique ajoute sa logique à la méthode `attack()` ou `draw()` avant d'appeler celle de la tour qu'elle contient.
+## 3. Architecture des données et flux
+
+### Gestion du Rendu (Canvas)
+Contrairement au Scene Graph classique de JavaFX, chaque entité (`Tower`, `Enemy`) possède sa propre méthode `draw(GraphicsContext gc)`. Le `GameEngine` parcourt la liste des entités à chaque frame (60 FPS) pour les redessiner sur le Canvas, assurant une fluidité maximale même avec un grand nombre d'ennemis à l'écran.
+
+### Flux de mise à jour
+Le cycle de vie d'une frame suit ce cheminement :
+1. Capture des clics via `InputService`.
+2. Mise à jour de l'économie via `CurrencyService`.
+3. Calcul des déplacements et collisions via `WaveManager` et `TowerService`.
+4. Notification des changements aux observateurs (`HUD`).
+5. Rendu graphique final sur le `GameCanvas`.
 
 ---
 
@@ -89,6 +96,11 @@ package service {
         + update() : void
     }
 
+    class GameConfig <<Singleton>> {
+        - {static} instance : GameConfig
+        + TOWER_PRICE : int
+    }
+
     class TowerService {
         - towers : List<Tower>
         - factory : TowerFactory
@@ -106,6 +118,19 @@ package service {
         - enemies : List<Enemy>
         - waveFactory : WaveFactory
         + updateWaves() : void
+    }
+}
+
+' --- PACKAGE UI ---
+package ui {
+    interface ICurrencyObserver {
+        + onGoldChanged(newGold : int) : void
+    }
+
+    class HUD implements ICurrencyObserver {
+        - currentGold : int
+        + onGoldChanged(newGold : int) : void
+        + draw(gc : GraphicsContext) : void
     }
 }
 
@@ -175,6 +200,7 @@ GameEngine --> GameService : "appelle update()"
 GameService --> TowerService : "gère"
 GameService --> WaveManager : "gère"
 GameService --> CurrencyService : "gère l'économie"
+GameService --> ui.HUD : "affiche"
 
 TowerService --> TowerFactory : "utilise"
 TowerService o-- Tower : "possède n"
@@ -197,11 +223,11 @@ Ce diagramme illustre le flux partant du clic de l'utilisateur jusqu'à la mise 
 actor Utilisateur
 participant "InputService" as Input
 participant "CurrencyService" as Currency
-participant "HUDObserver" as HUD
+participant "HUD" as HUD
 participant "GameCanvas" as Canvas
 
 Utilisateur -> Input : Clique sur le Noyau
-Input -> Currency : addMoney(amount)
+Input -> Currency : addGold(amount)
 
 Currency -> Currency : balance += amount
 note right : Logique métier (Clicker)
