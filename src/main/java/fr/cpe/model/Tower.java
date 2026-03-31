@@ -1,4 +1,15 @@
 package fr.cpe.model;
 
-public class Tower {
+abstract public class Tower {
+
+    private IAttackStrategy strategy;
+    private int range;
+    private int power;
+    public int position;
+
+    public void update():
+
+    public void draw(gc : GraphicsContext){
+
+    }
 }
