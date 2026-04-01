@@ -4,7 +4,7 @@ import fr.cpe.model.*;
 
 public class TowerService {
     public void toto(){
-        Tower tower = new Tower();
+        Tower tower = new Tower(new Coord(0,0));
         tower = new IceDecorator(tower);
         tower = new RangeDecorator(tower);
         if(tower instanceof TowerDecorator td)
