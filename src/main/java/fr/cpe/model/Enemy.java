@@ -2,7 +2,7 @@ package fr.cpe.model;
 
 public class Enemy {
     private int pv;
-    private int speed;
+    private float speed;
     private int position;
 
     public void move(){
@@ -17,11 +17,11 @@ public class Enemy {
         this.pv = pv;
     }
 
-    public int getSpeed() {
+    public float getSpeed() {
         return speed;
     }
 
-    public void setSpeed(int speed) {
+    public void setSpeed(float speed) {
         this.speed = speed;
     }
 
@@ -31,5 +31,10 @@ public class Enemy {
 
     public void setPosition(int position) {
         this.position = position;
+    }
+
+    public Enemy(int pv, float speed) {
+        this.pv = pv;
+        this.speed = speed;
     }
 }

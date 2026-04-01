@@ -1,9 +1,9 @@
 package fr.cpe.model;
 
 public class Boss extends Enemy {
-    private Enemy enemy;
 
-    public Boss(Enemy enemy){
-        this.enemy = enemy;
+
+    public Boss(int pv, float speed) {
+        super(pv, speed);
     }
 }

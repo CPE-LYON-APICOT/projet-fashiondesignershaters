@@ -13,9 +13,13 @@ package fr.cpe.service;
 // ╚══════════════════════════════════════════════════════════════════════════════╝
 
 import com.google.inject.Inject;
+import fr.cpe.factory.WaveFactory;
+import fr.cpe.model.Enemy;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+
+import java.util.List;
 
 /**
  * Service de jeu — gère l'état du jeu et ses éléments visuels.
@@ -59,10 +63,12 @@ import javafx.scene.text.Text;
 public class GameService {
 
     private final BallService ballService;
+    private final WaveFactory waveFactory;
 
     @Inject
-    public GameService(BallService ballService) {
+    public GameService(BallService ballService, WaveFactory waveFactory) {
         this.ballService = ballService;
+        this.waveFactory = waveFactory;
     }
 
     /**
@@ -70,6 +76,10 @@ public class GameService {
      */
     public void init(Pane gamePane) {
         ballService.init(gamePane);
+
+
+        List<Enemy> wave = waveFactory.createWave(5);
+
 
         Text text = new Text(20, 30, "Projet POO — À vous de jouer !");
         text.setFill(Color.web("#cdd6f4"));

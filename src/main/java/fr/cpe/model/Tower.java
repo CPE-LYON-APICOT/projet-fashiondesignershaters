@@ -7,14 +7,16 @@ public class Tower {
     private IAttackStrategy strategy;
     private int range;
     private int power;
-    public final Coord position;
+    public Coord position = new Coord(0,0);
 
     public Tower(Coord position){
         this.position = position;
         this.range = 1;
         this.power = 100;
     }
+    public Tower(){
 
+    }
     public void update(){
 
     }
