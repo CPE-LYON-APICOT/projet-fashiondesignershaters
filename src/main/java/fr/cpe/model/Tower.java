@@ -1,15 +1,48 @@
 package fr.cpe.model;
 
-abstract public class Tower {
+import javafx.scene.canvas.GraphicsContext;
+
+public class Tower {
 
     private IAttackStrategy strategy;
     private int range;
     private int power;
     public int position;
 
-    public void update():
-
-    public void draw(gc : GraphicsContext){
+    public void update(){
 
     }
+
+    public void draw(GraphicsContext gc){
+
+    }
+
+    public IAttackStrategy getStrategy() {
+        return strategy;
+    }
+
+    public void setStrategy(IAttackStrategy strategy) {
+        this.strategy = strategy;
+    }
+
+    public int getRange() {
+        return range;
+    }
+
+    public void setRange(int range) {
+        this.range = range;
+    }
+
+    public int getPower() {
+        return power;
+    }
+
+    public void setPower(int power) {
+        this.power = power;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
 }

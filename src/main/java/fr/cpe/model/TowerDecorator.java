@@ -1,4 +1,10 @@
 package fr.cpe.model;
 
-public class TowerDecorator {
+public abstract class TowerDecorator extends Tower{
+
+    public final Tower baseTower;
+
+    public TowerDecorator(Tower tower){
+        this.baseTower = tower;
+    }
 }
