@@ -1,8 +1,6 @@
 package ui;
 
-import fr.cpe.service.ICurrencyObserver;
-
-public class HUD implements ICurrencyObserver {
+public class HUD {
     private int currentGold;
 
     public HUD(int currentGold) {

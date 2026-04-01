@@ -64,11 +64,17 @@ public class GameService {
 
     private final BallService ballService;
     private final WaveFactory waveFactory;
+    private final TowerService towerService;
+    private final WaveManager waveManager;
+    private final CurrencyService currencyService;
 
     @Inject
-    public GameService(BallService ballService, WaveFactory waveFactory) {
+    public GameService(BallService ballService, WaveFactory waveFactory, TowerService towerService, WaveManager waveManager, CurrencyService currencyService) {
         this.ballService = ballService;
         this.waveFactory = waveFactory;
+        this.towerService = towerService;
+        this.waveManager = waveManager;
+        this.currencyService = currencyService;
     }
 
     /**

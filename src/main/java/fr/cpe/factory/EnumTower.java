@@ -1,7 +1,7 @@
 package fr.cpe.factory;
 
 public class EnumTower {
-    enum Tower {
+    public enum Tower {
         ARCHER, FIRE_WIZARD, ICE_WIZARD
     }
 }
