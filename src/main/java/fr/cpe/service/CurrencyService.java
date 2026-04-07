@@ -1,27 +1,38 @@
 package fr.cpe.service;
 
+import com.google.inject.Singleton;
+import java.util.ArrayList;
+import java.util.List;
+
+@Singleton
 public class CurrencyService {
-    private int gold;
+    private int gold = 100; 
+    private final List<ICurrencyObserver> observers = new ArrayList<>();
 
-    public CurrencyService(int gold){
-        this.gold = gold;
+    public void addObserver(ICurrencyObserver observer) {
+        observers.add(observer);
+        observer.onGoldChanged(gold);
     }
 
-    public int getGold() {
-        return gold;
-    }
-
-    public void setGold(int gold) {
-        this.gold = gold;
-    }
-    public void addGold(int amount){
+    public void addGold(int amount) {
         this.gold += amount;
+        notifyObservers();
     }
-    public void spendGold(int amount){
-        if(this.gold >= amount){
+
+    public boolean spendGold(int amount) {
+        if (this.gold >= amount) {
             this.gold -= amount;
-        } else {
-            throw new IllegalArgumentException("Not enough gold");
+            notifyObservers();
+            return true;
+        }
+        return false;
+    }
+
+    private void notifyObservers() {
+        for (ICurrencyObserver obs : observers) {
+            obs.onGoldChanged(gold);
         }
     }
+    
+    public int getGold() { return gold; }
 }

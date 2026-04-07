@@ -1,12 +1,32 @@
 package fr.cpe.model;
 
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
+
 public class Enemy {
     private int pv;
     private float speed;
-    private int position;
+    private double x;
+    private double y;
 
-    public void move(){
+    public Enemy(int pv, float speed) {
+        this.pv = pv;
+        this.speed = speed;
+        this.x = 0; // tout à gauche
+        this.y = 300; // milieu
+    }
 
+    public void move() {
+        this.x += speed;
+    }
+
+    public void draw(GraphicsContext gc) {
+        gc.setFill(Color.RED);
+        gc.fillRect(x, y, 30, 30);
+    }
+
+    public boolean isDead() {
+        return pv <= 0;
     }
 
     public int getPv() {
@@ -25,16 +45,19 @@ public class Enemy {
         this.speed = speed;
     }
 
-    public int getPosition() {
-        return position;
+    public double getX() {
+        return x;
     }
 
-    public void setPosition(int position) {
-        this.position = position;
+    public void setX(double x) {
+        this.x = x;
     }
 
-    public Enemy(int pv, float speed) {
-        this.pv = pv;
-        this.speed = speed;
+    public double getY() {
+        return y;
+    }
+
+    public void setY(double y) {
+        this.y = y;
     }
 }

@@ -7,10 +7,9 @@ public class HeavyAttackStrategy implements IAttackStrategy{
 
     @Override
     public void attack(List<Enemy> enemyList, int power) {
-        var enemy = enemyList.stream()
-                //.sorted(e->Comparator.comparing(e.getPv()))
-                .findFirst().get();
-
-        enemy.setPv(-(power * 5 ));
+        if (!enemyList.isEmpty()) {
+            Enemy target = enemyList.get(0); 
+            target.setPv(target.getPv() - (power * 5)); 
+        }
     }
 }
