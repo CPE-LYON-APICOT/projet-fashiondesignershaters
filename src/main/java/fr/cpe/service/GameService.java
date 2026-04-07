@@ -62,7 +62,6 @@ import java.util.List;
  */
 public class GameService {
 
-    private final BallService ballService;
     private final WaveFactory waveFactory;
     private final TowerService towerService;
     private final WaveManager waveManager;
@@ -70,7 +69,6 @@ public class GameService {
 
     @Inject
     public GameService(BallService ballService, WaveFactory waveFactory, TowerService towerService, WaveManager waveManager, CurrencyService currencyService) {
-        this.ballService = ballService;
         this.waveFactory = waveFactory;
         this.towerService = towerService;
         this.waveManager = waveManager;
@@ -81,8 +79,11 @@ public class GameService {
      * Initialise les éléments visuels du jeu (appelé une fois au démarrage).
      */
     public void init(Pane gamePane) {
-        ballService.init(gamePane);
+        currencyService.addGold(100);
 
+        gamePane.setOnMouseClicked(e -> {
+            currencyService.addGold(1);
+        });
 
         List<Enemy> wave = waveFactory.createWave(5);
 
@@ -96,6 +97,7 @@ public class GameService {
      * Met à jour l'état du jeu (appelé à chaque frame).
      */
     public void update(double width, double height) {
-        ballService.update(width, height);
+        waveManager.updateWaves();
+        towerService.updateTowers();
     }
 }

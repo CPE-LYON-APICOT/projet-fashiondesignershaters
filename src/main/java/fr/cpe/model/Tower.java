@@ -4,9 +4,9 @@ import javafx.scene.canvas.GraphicsContext;
 
 public class Tower {
 
-    private IAttackStrategy strategy;
-    private int range;
-    private int power;
+    protected IAttackStrategy strategy;
+    protected int range;
+    protected int power;
     public Coord position = new Coord(0,0);
 
     public Tower(Coord position){
