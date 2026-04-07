@@ -13,9 +13,13 @@ package fr.cpe.service;
 // ╚══════════════════════════════════════════════════════════════════════════════╝
 
 import com.google.inject.Inject;
+import fr.cpe.factory.WaveFactory;
+import fr.cpe.model.Enemy;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+
+import java.util.List;
 
 /**
  * Service de jeu — gère l'état du jeu et ses éléments visuels.
@@ -58,28 +62,39 @@ import javafx.scene.text.Text;
  */
 public class GameService {
 
-    private final BallService ballService;
+    private final WaveFactory waveFactory;
+    private final TowerService towerService;
+    private final WaveManager waveManager;
+    private final CurrencyService currencyService;
 
     @Inject
-    public GameService(BallService ballService) {
-        this.ballService = ballService;
+    public GameService(BallService ballService, WaveFactory waveFactory, TowerService towerService, WaveManager waveManager, CurrencyService currencyService) {
+        this.waveFactory = waveFactory;
+        this.towerService = towerService;
+        this.waveManager = waveManager;
+        this.currencyService = currencyService;
     }
 
     /**
      * Initialise les éléments visuels du jeu (appelé une fois au démarrage).
      */
     public void init(Pane gamePane) {
-        ballService.init(gamePane);
+        currencyService.addGold(100);
+
+        gamePane.setOnMouseClicked(e -> {
+            currencyService.addGold(1);
+        });
+
+        List<Enemy> wave = waveFactory.createWave(5);
+
 
         Text text = new Text(20, 30, "Projet POO — À vous de jouer !");
         text.setFill(Color.web("#cdd6f4"));
         gamePane.getChildren().add(text);
     }
 
-    /**
-     * Met à jour l'état du jeu (appelé à chaque frame).
-     */
     public void update(double width, double height) {
-        ballService.update(width, height);
+        waveManager.updateWaves();
+        towerService.updateTowers(waveManager.getEnemies());
     }
 }

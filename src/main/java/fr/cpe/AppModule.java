@@ -11,6 +11,9 @@ package fr.cpe;
 
 import com.google.inject.AbstractModule;
 
+import fr.cpe.model.IAttackStrategy;
+import fr.cpe.model.SlowingAttackStrategy;
+
 /**
  * Module Guice — c'est ici que vous déclarez vos bindings (interface → implémentation).
  *
@@ -43,5 +46,6 @@ public class AppModule extends AbstractModule {
         // tout seul (GameEngine, GameService) grâce à @Inject.
         //
         // Quand vous introduirez des interfaces, ajoutez vos bindings ici.
+        bind(IAttackStrategy.class).to(SlowingAttackStrategy.class);
     }
 }
