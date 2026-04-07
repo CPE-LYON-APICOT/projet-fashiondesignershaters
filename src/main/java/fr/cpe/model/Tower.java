@@ -1,6 +1,7 @@
 package fr.cpe.model;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 
 public class Tower {
 
@@ -11,18 +12,25 @@ public class Tower {
 
     public Tower(Coord position){
         this.position = position;
-        this.range = 1;
+        this.range = 2;
         this.power = 100;
     }
+
     public Tower(){
-
     }
+
     public void update(){
-
     }
-
-    public void draw(GraphicsContext gc){
-
+    // montrer la range visuellement
+    public void draw(GraphicsContext gc, int tileSize){
+        gc.setFill(Color.CORNFLOWERBLUE);
+        gc.fillRect(position.x() * tileSize, position.y() * tileSize, tileSize, tileSize);
+        
+        gc.setStroke(Color.web("#ffffff", 0.1));
+        gc.strokeOval((position.x() + 0.5 - range) * tileSize, 
+                     (position.y() + 0.5 - range) * tileSize, 
+                     range * 2 * tileSize, 
+                     range * 2 * tileSize);
     }
 
     public IAttackStrategy getStrategy() {
@@ -49,5 +57,11 @@ public class Tower {
         this.power = power;
     }
 
-
+    public boolean isEnemyInRange(Enemy target) {
+        double dx = this.position.x() - target.getX();
+        double dy = this.position.y() - target.getY();
+        double distanceSquared = (dx * dx) + (dy * dy);
+        
+        return distanceSquared <= (range * range);
+    }
 }

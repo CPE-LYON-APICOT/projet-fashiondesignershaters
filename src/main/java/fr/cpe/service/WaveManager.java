@@ -31,9 +31,9 @@ public class WaveManager {
         }
     }
 
-    public void drawEnemies(GraphicsContext gc) {
+    public void drawEnemies(GraphicsContext gc, int tileSize) {
         for (Enemy e : enemies) {
-            e.draw(gc);
+            e.draw(gc, tileSize);
         }
     }
 

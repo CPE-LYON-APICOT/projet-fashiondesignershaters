@@ -93,11 +93,8 @@ public class GameService {
         gamePane.getChildren().add(text);
     }
 
-    /**
-     * Met à jour l'état du jeu (appelé à chaque frame).
-     */
     public void update(double width, double height) {
         waveManager.updateWaves();
-        towerService.updateTowers();
+        towerService.updateTowers(waveManager.getEnemies());
     }
 }

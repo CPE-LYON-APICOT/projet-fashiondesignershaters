@@ -25,7 +25,7 @@ public class TowerService {
         towers.add(tower);
     }
 
-    public void upgradeTower(Tower tower, String upgradeType) {
+    public void upgradeTowers(Tower tower, String upgradeType) {
         int index = towers.indexOf(tower);
         if (index != -1) {
             Tower upgradedTower = tower;
@@ -40,15 +40,24 @@ public class TowerService {
         }
     }
 
-    public void updateTowers() {
+    public void updateTowers(List<Enemy> enemies) {
         for (Tower tower : towers) {
-            tower.update();
+            List<Enemy> targets = new ArrayList<>();
+            for (Enemy e : enemies) {
+                if (tower.isEnemyInRange(e)) {
+                    targets.add(e);
+                }
+            }
+
+            if (!targets.isEmpty() && tower.getStrategy() != null) {
+                tower.getStrategy().attack(targets, tower.getPower());
+            }
         }
     }
 
-    public void drawTowers(GraphicsContext gc) {
+    public void drawTowers(GraphicsContext gc, int tileSize) {
         for (Tower tower : towers) {
-            tower.draw(gc);
+            tower.draw(gc, tileSize);
         }
     }
 

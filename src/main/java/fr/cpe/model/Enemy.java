@@ -12,17 +12,17 @@ public class Enemy {
     public Enemy(int pv, float speed) {
         this.pv = pv;
         this.speed = speed;
-        this.x = 0; // tout à gauche
-        this.y = 300; // milieu
+        this.x = 0.0;
+        this.y = 7.5; 
     }
 
     public void move() {
         this.x += speed;
     }
 
-    public void draw(GraphicsContext gc) {
+    public void draw(GraphicsContext gc, int tileSize) {
         gc.setFill(Color.RED);
-        gc.fillRect(x, y, 30, 30);
+        gc.fillRect(x * tileSize + (tileSize * 0.2), y * tileSize + (tileSize * 0.2), tileSize * 0.6, tileSize * 0.6);
     }
 
     public boolean isDead() {
