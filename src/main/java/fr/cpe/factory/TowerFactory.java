@@ -1,12 +1,14 @@
 package fr.cpe.factory;
 
 import fr.cpe.model.*;
+import fr.cpe.service.GameState;
 
 public class TowerFactory {
 
     public Tower createTower(EnumTower.Tower towerType, Coord c){
 
         Tower tower = new Tower(c);
+        GameState.getInstance().incrementerNbTourConstruite();
         if (towerType == EnumTower.Tower.ARCHER){
             tower.setStrategy(new HeavyAttackStrategy());
             System.out.println("Archer Tower created");
