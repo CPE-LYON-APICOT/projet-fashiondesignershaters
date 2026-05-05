@@ -7,7 +7,7 @@ public class SlowingAttackStrategy implements IAttackStrategy {
     public void attack(List<Enemy> enemyList, int power) {
         for (Enemy enemy : enemyList){
             enemy.setPv(enemy.getPv()-power);
-            enemy.setSpeed(enemy.getSpeed() - 1);
+            enemy.setSpeed(enemy.getSpeed() * 0.5f);
         }
 
     }

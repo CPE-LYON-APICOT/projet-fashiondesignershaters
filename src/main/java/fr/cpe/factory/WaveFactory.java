@@ -10,8 +10,8 @@ public class WaveFactory {
     public List<Enemy> createWave(int level) {
         List<Enemy> wave = new ArrayList<>();
 
-        int mobCount = 5 + level;
-        int mobHp = (int) (20 * Math.pow(1.15, level - 1));
+        int mobCount = 20 + level;
+        int mobHp = 20;
 
         // --- LA CORRECTION EST ICI ---
         // On passe de 2.0f à 0.03f (environ 2 cases par seconde)

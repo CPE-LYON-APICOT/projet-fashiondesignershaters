@@ -14,7 +14,7 @@ public class Tower {
     public Tower(Coord position){
         this.position = position;
         this.range = 2;
-        this.power = 100;
+        this.power = 5;
     }
 
     public Tower(){

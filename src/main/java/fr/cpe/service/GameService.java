@@ -95,7 +95,6 @@ public class GameService {
     }
 
     public void init(Pane gamePane) {
-        currencyService.addGold(100); 
         HUD hud = new HUD(currencyService.getGold());
         currencyService.addObserver(hud);
 
@@ -128,7 +127,6 @@ public class GameService {
         int col = (int) (x / config.TILE_SIZE);
         int row = (int) (y / config.TILE_SIZE);
 
-        // --- RÈGLE : Pas de tour sur le chemin ! ---
         if (row == PATH_ROW) {
             System.out.println("Impossible de construire sur le chemin !");
             return;
@@ -166,7 +164,7 @@ public class GameService {
     public void render(GraphicsContext gc) {
         gc.clearRect(0, 0, 800, 600);
 
-        // --- DESSIN DE LA MAP (HERBE ET CHEMIN) ---
+        // --- grille map ---
         for (int col = 0; col < GAME_WIDTH / config.TILE_SIZE; col++) {
             for (int row = 0; row < 600 / config.TILE_SIZE; row++) {
                 if (row == PATH_ROW) {
