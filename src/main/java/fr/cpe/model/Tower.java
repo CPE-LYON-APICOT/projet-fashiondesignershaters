@@ -10,6 +10,8 @@ public class Tower {
     protected int power;
     protected Color color = Color.CORNFLOWERBLUE;
     public Coord position = new Coord(0,0);
+    private long lastAttackTime = 0;
+    private long attackCooldown = 1000;
 
     public Tower(Coord position){
         this.position = position;
@@ -73,4 +75,17 @@ public class Tower {
         
         return distanceSquared <= (range * range);
     }
+
+    public void setAttackCooldown(long cooldown) {
+        this.attackCooldown = cooldown;
+    }
+
+    public boolean canAttack() {
+    long currentTime = System.currentTimeMillis();
+    if (currentTime - lastAttackTime >= attackCooldown) {
+        lastAttackTime = currentTime; 
+        return true;
+    }
+    return false;
+}
 }

@@ -42,15 +42,17 @@ public class TowerService {
 
     public void updateTowers(List<Enemy> enemies) {
         for (Tower tower : towers) {
-            List<Enemy> targets = new ArrayList<>();
-            for (Enemy e : enemies) {
-                if (tower.isEnemyInRange(e)) {
-                    targets.add(e);
+            if (tower.canAttack()) { 
+                List<Enemy> targets = new ArrayList<>();
+                for (Enemy e : enemies) {
+                    if (tower.isEnemyInRange(e)) {
+                        targets.add(e);
+                    }
                 }
-            }
 
-            if (!targets.isEmpty() && tower.getStrategy() != null) {
-                tower.getStrategy().attack(targets, tower.getPower());
+                if (!targets.isEmpty() && tower.getStrategy() != null) {
+                    tower.getStrategy().attack(targets, tower.getPower());
+                }
             }
         }
     }

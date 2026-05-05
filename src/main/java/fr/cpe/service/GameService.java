@@ -176,7 +176,6 @@ public class GameService {
             }
         }
 
-        // Grille de debug (plus discrète)
         gc.setStroke(Color.web("#000000", 0.1));
         for (int i = 0; i <= GAME_WIDTH; i += config.TILE_SIZE) gc.strokeLine(i, 0, i, 600);
         for (int i = 0; i <= 600; i += config.TILE_SIZE) gc.strokeLine(0, i, GAME_WIDTH, i);
