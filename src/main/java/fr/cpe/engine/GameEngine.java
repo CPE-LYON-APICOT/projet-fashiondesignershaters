@@ -17,6 +17,8 @@ package fr.cpe.engine;
 import com.google.inject.Inject;
 import fr.cpe.service.GameService;
 import javafx.animation.AnimationTimer;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.Pane;
 
 /**
@@ -47,27 +49,28 @@ public class GameEngine {
         this.gameService = gameService;
     }
 
-    /**
-     * Démarre la boucle de jeu sur le Pane donné.
-     * Appelle {@code gameService.init(gamePane)} une fois,
-     * puis {@code gameService.update(w, h)} à chaque frame.
-     */
     public void start(Pane gamePane) {
+        // Ajout du Canvas pour le dessin manuel
+        Canvas canvas = new Canvas(800, 600);
+        gamePane.getChildren().add(canvas);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+
         gameService.init(gamePane);
+
         gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
+                // On récupère la taille actuelle du Pane
                 double w = gamePane.getWidth();
                 double h = gamePane.getHeight();
+                
                 gameService.update(w, h);
+                gameService.render(gc); // L'erreur disparaîtra une fois GameService mis à jour
             }
         };
         gameLoop.start();
     }
 
-    /**
-     * Arrête la boucle de jeu.
-     */
     public void stop() {
         if (gameLoop != null) {
             gameLoop.stop();

@@ -1,7 +1,10 @@
 package fr.cpe.service;
 
+import com.google.inject.Singleton;
+
+@Singleton
 public class GameConfig {
-    public final int TILE_SIZE = 40; // Chaque case fait 40x40 pixels
-    public final int GRID_WIDTH = 20;
-    public final int GRID_HEIGHT = 15;
+    public final int TILE_SIZE = 40;
+    public final int GOLD_PER_CLICK = 1;
+    public final int TOWER_BASIC_COST = 10;
 }

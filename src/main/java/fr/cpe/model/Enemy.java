@@ -12,8 +12,8 @@ public class Enemy {
     public Enemy(int pv, float speed) {
         this.pv = pv;
         this.speed = speed;
-        this.x = 0.0;
-        this.y = 7.5; 
+        this.x = -1.0;
+        this.y = 7.0; 
     }
 
     public void move() {

@@ -1,22 +1,23 @@
 package ui;
 
+import fr.cpe.service.ICurrencyObserver;
 import fr.cpe.service.GameState;
 
-public class HUD {
+public class HUD implements ICurrencyObserver { 
     private int currentGold;
 
     public HUD(int currentGold) {
         this.currentGold = currentGold;
     }
 
+    @Override
     public void onGoldChanged(int newGold) {
         this.currentGold = newGold;
         updateDisplay();
     }
-    private void updateDisplay() {
-        // Code to update the HUD display with the new gold amount
-        System.out.println("Current Gold: " + currentGold);
-        System.out.println("Tours construites : " + GameState.getInstance().getNbTourConstruite());
 
+    private void updateDisplay() {
+        System.out.println("HUD -> Or actuel : " + currentGold);
+        System.out.println("Tours : " + GameState.getInstance().getNbTourConstruite());
     }
 }

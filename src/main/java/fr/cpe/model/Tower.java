@@ -8,6 +8,7 @@ public class Tower {
     protected IAttackStrategy strategy;
     protected int range;
     protected int power;
+    protected Color color = Color.CORNFLOWERBLUE;
     public Coord position = new Coord(0,0);
 
     public Tower(Coord position){
@@ -23,7 +24,7 @@ public class Tower {
     }
     // montrer la range visuellement
     public void draw(GraphicsContext gc, int tileSize){
-        gc.setFill(Color.CORNFLOWERBLUE);
+        gc.setFill(color);
         gc.fillRect(position.x() * tileSize, position.y() * tileSize, tileSize, tileSize);
         
         gc.setStroke(Color.web("#ffffff", 0.1));
@@ -55,6 +56,14 @@ public class Tower {
 
     public void setPower(int power) {
         this.power = power;
+    }
+
+    public void setColor(Color color) { 
+        this.color = color; 
+    }
+
+    public Color getColor() { 
+        return color; 
     }
 
     public boolean isEnemyInRange(Enemy target) {

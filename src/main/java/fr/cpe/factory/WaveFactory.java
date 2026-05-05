@@ -3,7 +3,6 @@ package fr.cpe.factory;
 import fr.cpe.model.Boss;
 import fr.cpe.model.Enemy;
 import fr.cpe.model.Mob;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,35 +10,21 @@ public class WaveFactory {
     public List<Enemy> createWave(int level) {
         List<Enemy> wave = new ArrayList<>();
 
-        // --- CONFIGURATION DES STATS ---
-
-        // Nombre d'ennemis : Croissance linéaire
-        int mobCount = (int) (5 + (level * 1.2));
-        int bossCount = level / 5;
-
-        // PV : Croissance exponentielle (ex: +15% par niveau)
+        int mobCount = 5 + level;
         int mobHp = (int) (20 * Math.pow(1.15, level - 1));
-        int bossHp = (int) (150 * Math.pow(1.2, level - 1));
 
-        // Vitesse : Croissance très lente ou logarithmique
-        // On veut éviter que les ennemis deviennent téléporteurs à haut niveau
-        float mobSpeed = 2.0f + (level * 0.1f);
-        float bossSpeed = 1.0f + (level * 0.05f);
+        // --- LA CORRECTION EST ICI ---
+        // On passe de 2.0f à 0.03f (environ 2 cases par seconde)
+        float mobSpeed = 0.02f + (level * 0.005f); 
 
-        // --- CRÉATION DES INSTANCES ---
-
-        // Ajout des Mobs
         for (int i = 0; i < mobCount; i++) {
-            // Constructeur : new Mob(pointsDeVie, vitesse)
-            wave.add(new Mob(mobHp, mobSpeed));
+            // On espace un peu les ennemis en changeant leur X de départ
+            Mob m = new Mob(mobHp, mobSpeed);
+            m.setX(-i * 1.5); // Ils arrivent les uns après les autres
+            wave.add(m);
         }
 
-        // Ajout des Boss
-        for (int i = 0; i < bossCount; i++) {
-            // Constructeur : new Boss(pointsDeVie, vitesse)
-            wave.add(new Boss(bossHp, bossSpeed));
-        }
-        System.out.println("Wave " + level + " created with " + mobCount + " mobs and " + bossCount + " bosses.");
+        System.out.println("Vague " + level + " générée : " + mobCount + " ennemis.");
         return wave;
     }
 }
